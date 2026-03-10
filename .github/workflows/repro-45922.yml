@@ -1,0 +1,44 @@
+name: Repro 45922
+
+on:
+  workflow_dispatch:
+
+jobs:
+  repro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          
+      - name: Run target test 50 times
+        shell: bash
+        run: |
+          fail=0
+          for i in $(seq 1 50); do
+            echo "===== Run $i ====="
+            mvn -f testsuite/integration-arquillian/pom.xml test \
+              -Dtest=LevelOfAssuranceFlowTest#optionalClaimNotReachedSucceeds \
+              -Dbrowser=chrome \
+              -DchromeArguments="--headless --window-size=1920,1080 --remote-allow-origins=* --ignore-ssl-errors=yes --ignore-certificate-errors --disable-gpu --disable-dev-shm-usage" \
+              || fail=1
+          done
+          exit $fail
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repro-45922-artifacts
+          path: |
+            **/surefire-reports/**
+            **/failsafe-reports/**
+            **/screenshots/**
