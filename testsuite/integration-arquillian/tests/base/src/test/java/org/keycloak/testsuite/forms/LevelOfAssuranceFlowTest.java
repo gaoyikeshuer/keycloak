@@ -93,6 +93,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.keycloak.testsuite.actions.AppInitiatedActionDeleteCredentialTest.getKcActionParamForDeleteCredential;
+import static org.keycloak.testsuite.util.WaitUtils.waitUntilPageIsCurrent;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -1114,6 +1115,7 @@ public class LevelOfAssuranceFlowTest extends AbstractChangeImportedUserPassword
     }
     
     private void authenticateWithUsernamePassword() {
+        waitUntilPageIsCurrent(loginPage);
         loginPage.assertCurrent();
         loginPage.login("test-user@localhost", getPassword("test-user@localhost"));
     }
